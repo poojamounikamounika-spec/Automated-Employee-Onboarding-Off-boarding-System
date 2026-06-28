@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LifecycleOps — Automated Employee Onboarding & Offboarding System</title>
+  <meta name="description"
+    content="ServiceNow-powered automated employee onboarding and offboarding management system with role-based access, workflow automation, SLA tracking, and analytics." />
+  <meta name="keywords" content="ServiceNow, Employee Onboarding, Offboarding, HR Automation, Workflow, ITSM" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="login-bg">
+      <div class="login-bg-orb orb1"></div>
+      <div class="login-bg-orb orb2"></div>
+      <div class="login-bg-orb orb3"></div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">🔄</div>
+        <div>
+          <div class="login-logo-text">Lifecycle<span>Ops</span></div>
+          <div style="font-size:12px;color:var(--text-muted)">Employee Lifecycle Management System</div>
+        </div>
+      </div>
+      <p class="login-subtitle">ServiceNow-Powered · Role-Based Access · Automated Workflows</p>
+
+      <label class="login-label">Select Your Role to Continue</label>
+      <div class="role-grid" id="role-grid">
+        <div class="role-card" data-role="hr" style="color:#7C3AED;border-color:rgba(124,58,237,0.3)">
+          <div class="role-card-icon">👥</div>
+          <div class="role-card-label">HR Admin</div>
+          <div class="role-card-desc">Manage requests & lifecycle</div>
+        </div>
+        <div class="role-card" data-role="manager" style="color:#06B6D4;border-color:rgba(6,182,212,0.3)">
+          <div class="role-card-icon">🏢</div>
+          <div class="role-card-label">Manager</div>
+          <div class="role-card-desc">Approve requests</div>
+        </div>
+        <div class="role-card" data-role="it" style="color:#10B981;border-color:rgba(16,185,129,0.3)">
+          <div class="role-card-icon">💻</div>
+          <div class="role-card-label">IT Team</div>
+          <div class="role-card-desc">Handle IT tasks</div>
+        </div>
+        <div class="role-card" data-role="facilities" style="color:#F59E0B;border-color:rgba(245,158,11,0.3)">
+          <div class="role-card-icon">🏗️</div>
+          <div class="role-card-label">Facilities</div>
+          <div class="role-card-desc">Workspace setup</div>
+        </div>
+        <div class="role-card" data-role="security" style="color:#F43F5E;border-color:rgba(244,63,94,0.3)">
+          <div class="role-card-icon">🔒</div>
+          <div class="role-card-label">Security</div>
+          <div class="role-card-desc">Access & badge management</div>
+        </div>
+        <div class="role-card" data-role="employee" style="color:#8B5CF6;border-color:rgba(139,92,246,0.3)">
+          <div class="role-card-icon">👤</div>
+          <div class="role-card-label">Employee</div>
+          <div class="role-card-desc">Submit requests via portal</div>
+        </div>
+      </div>
+
+      <button class="login-btn" id="login-btn" disabled onclick="handleLogin()">
+        Access System →
+      </button>
+
+      <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:16px">
+        🔐 Role-based ACLs enforced · ServiceNow PDI simulation
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════ -->
+  <div id="app-shell" style="display:none">
+
+    <!-- TOPBAR -->
+    <nav id="topbar">
+      <div class="topbar-logo" onclick="Router.navigate('dashboard')" style="cursor:pointer">
+        <div class="topbar-logo-icon">🔄</div>
+        <div class="topbar-logo-text">LifecycleOps</div>
+      </div>
+
+      <div class="topbar-nav" id="topbar-nav">
+        <!-- Dynamic nav items injected by JS -->
+      </div>
+
+      <div class="topbar-right">
+        <div style="position:relative">
+          <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()">
+            🔔
+            <span class="notif-badge" id="notif-badge">3</span>
+          </button>
+          <div id="notif-dropdown" class="notif-dropdown" style="display:none"></div>
+        </div>
+
+        <div class="user-chip" id="user-chip" onclick="handleLogout()">
+          <div class="user-avatar" id="user-avatar-chip">HR</div>
+          <div>
+            <div class="user-name" id="user-name-chip">HR Admin</div>
+            <div class="user-role-label" id="user-role-chip">Click to switch role</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main id="app-main">
+      <!-- Views rendered here by Router -->
+    </main>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════ -->
+  <script src="data/mockData.js"></script>
+  <script src="components/notifications.js"></script>
+  <script src="components/router.js"></script>
+  <script src="components/lifecycle.js"></script>
+  <script src="components/approvals.js"></script>
+  <script src="components/taskManager.js"></script>
+  <script src="components/charts.js"></script>
+
+  <script>
+    // ============================================================
+    // Main Application Controller
+    // ============================================================
+
+    const ROLE_NAV = {
+      hr: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'portal', label: 'Service Portal', icon: '🏠' },
+        { id: 'lifecycle', label: 'Lifecycle Table', icon: '📋' },
+        { id: 'approvals', label: 'Approvals', icon: '✅' },
+        { id: 'tasks', label: 'Task Board', icon: '📌' },
+        { id: 'analytics', label: 'Analytics', icon: '📈' },
+        { id: 'setupguide', label: 'Setup Manual', icon: '📖' },
+      ],
+      manager: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'approvals', label: 'Approvals', icon: '✅' },
+        { id: 'lifecycle', label: 'Lifecycle Table', icon: '📋' },
+      ],
+      it: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'tasks', label: 'Task Board', icon: '📌' },
+        { id: 'lifecycle', label: 'Lifecycle Table', icon: '📋' },
+      ],
+      facilities: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'tasks', label: 'Task Board', icon: '📌' },
+      ],
+      security: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'tasks', label: 'Task Board', icon: '📌' },
+      ],
+      employee: [
+        { id: 'portal', label: 'Service Portal', icon: '🏠' },
+      ],
+    };
+
+    // ── Role Select ──────────────────────────────────────
+    let selectedRole = null;
+
+    document.querySelectorAll('.role-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.role-card').forEach(c => {
+          c.classList.remove('selected');
+          c.style.boxShadow = '';
+        });
+        selectedRole = card.dataset.role;
+        card.classList.add('selected');
+        card.style.boxShadow = `0 0 24px ${window.getComputedStyle(card).color}44`;
+        document.getElementById('login-btn').disabled = false;
+      });
+    });
+
+    function handleLogin() {
+      if (!selectedRole) return;
+      const roleLabels = {
+        hr: 'HR Admin', manager: 'Manager', it: 'IT Specialist',
+        facilities: 'Facilities Team', security: 'Security Team', employee: 'Employee'
+      };
+      window.APP_DATA.currentUser = {
+        role: selectedRole,
+        name: roleLabels[selectedRole],
+        initials: roleLabels[selectedRole].split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+      };
+
+      document.getElementById('login-screen').style.animation = 'fadeIn 0.3s ease reverse';
+      setTimeout(() => {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-shell').style.display = 'flex';
+        document.getElementById('app-shell').style.flexDirection = 'column';
+        initApp();
+      }, 280);
+    }
+
+    function handleLogout() {
+      if (confirm('Switch role? You will return to the login screen.')) {
+        document.getElementById('app-shell').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('login-screen').style.animation = '';
+        selectedRole = null;
+        document.getElementById('login-btn').disabled = true;
+        document.querySelectorAll('.role-card').forEach(c => {
+          c.classList.remove('selected'); c.style.boxShadow = '';
+        });
+      }
+    }
+
+    // ── App Init ─────────────────────────────────────────
+    function initApp() {
+      const { currentUser } = window.APP_DATA;
+      document.getElementById('user-avatar-chip').textContent = currentUser.initials;
+      document.getElementById('user-name-chip').textContent = currentUser.name;
+      document.getElementById('user-role-chip').textContent = currentUser.role.toUpperCase();
+
+      buildNav(currentUser.role);
+      registerViews();
+      updateNotifBadge();
+      NotificationSystem.init();
+
+      // Navigate to default view
+      const defaultView = ROLE_NAV[currentUser.role][0].id;
+      Router.navigate(defaultView);
+
+      // Close notif dropdown on outside click
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('notif-dropdown');
+        const btn = document.getElementById('notif-btn');
+        if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+    }
+
+    function buildNav(role) {
+      const nav = document.getElementById('topbar-nav');
+      const items = ROLE_NAV[role] || [];
+      nav.innerHTML = items.map(item => `
+    <button class="nav-btn" data-nav="${item.id}" onclick="Router.navigate('${item.id}')">
+      <span>${item.icon}</span>
+      <span class="nav-text">${item.label}</span>
+    </button>
+  `).join('');
+    }
+
+    // ── View Registration ────────────────────────────────
+    function registerViews() {
+      Router.register('dashboard', renderDashboard);
+      Router.register('portal', renderPortal);
+      Router.register('lifecycle', (c, p) => renderLifecycleTable(c, p));
+      Router.register('approvals', (c, p) => renderApprovals(c, p));
+      Router.register('tasks', (c, p) => renderTaskManager(c, p));
+      Router.register('analytics', (c, p) => renderCharts(c, p));
+      Router.register('setupguide', renderSetupGuide);
+    }
+
+    // ── Dashboard View ───────────────────────────────────
+    function renderDashboard(container) {
+      const { requests, currentUser } = window.APP_DATA;
+      const total = requests.length;
+      const completed = requests.filter(r => r.status === 'completed').length;
+      const pending = requests.filter(r => r.approvalStatus === 'pending').length;
+      const onboarding = requests.filter(r => r.type === 'onboarding').length;
+      const offboarding = requests.filter(r => r.type === 'offboarding').length;
+      const atRisk = requests.filter(r => r.slaStatus === 'at_risk').length;
+
+      const roleGreetings = {
+        hr: 'HR Admin Dashboard', manager: 'Manager Overview',
+        it: 'IT Operations Board', facilities: 'Facilities Overview',
+        security: 'Security Console', employee: 'My Requests'
+      };
+
+      container.innerHTML = `
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">${roleGreetings[currentUser.role] || 'Dashboard'}</h1>
+        <p class="view-subtitle">Welcome back, ${currentUser.name} · ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </div>
+      ${currentUser.role !== 'employee' ? `
+      <button class="btn-primary" onclick="Router.navigate('portal')">
+        ➕ New Request
+      </button>` : ''}
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats-grid">
+      <div class="dash-stat-card" style="border-top: 3px solid #7C3AED">
+        <div class="ds-icon">📋</div>
+        <div class="ds-value" style="color:#7C3AED">${total}</div>
+        <div class="ds-label">Total Requests</div>
+        <div class="ds-trend trend-up">↑ ${onboarding} onboarding</div>
+      </div>
+      <div class="dash-stat-card" style="border-top: 3px solid #10B981">
+        <div class="ds-icon">✅</div>
+        <div class="ds-value" style="color:#10B981">${completed}</div>
+        <div class="ds-label">Completed</div>
+        <div class="ds-trend trend-up">${Math.round((completed / total) * 100)}% completion rate</div>
+      </div>
+      <div class="dash-stat-card" style="border-top: 3px solid #F59E0B">
+        <div class="ds-icon">⏳</div>
+        <div class="ds-value" style="color:#F59E0B">${pending}</div>
+        <div class="ds-label">Pending Approvals</div>
+        <div class="ds-trend trend-warn">Needs attention</div>
+      </div>
+      <div class="dash-stat-card" style="border-top: 3px solid #F43F5E">
+        <div class="ds-icon">⚡</div>
+        <div class="ds-value" style="color:#F43F5E">${atRisk}</div>
+        <div class="ds-label">SLA At Risk</div>
+        <div class="ds-trend trend-warn">Action required</div>
+      </div>
+      <div class="dash-stat-card" style="border-top: 3px solid #06B6D4">
+        <div class="ds-icon">🟢</div>
+        <div class="ds-value" style="color:#06B6D4">${onboarding}</div>
+        <div class="ds-label">Onboarding</div>
+        <div class="ds-trend">Active requests</div>
+      </div>
+      <div class="dash-stat-card" style="border-top: 3px solid #F43F5E">
+        <div class="ds-icon">🔴</div>
+        <div class="ds-value" style="color:#F43F5E">${offboarding}</div>
+        <div class="ds-label">Offboarding</div>
+        <div class="ds-trend">Active requests</div>
+      </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div style="margin-bottom:20px">
+      <div class="section-label-lg">📋 Recent Requests</div>
+      <div class="requests-list">
+        ${requests.slice(0, 5).map(r => {
+        const date = r.type === 'onboarding' ? r.joiningDate : r.exitDate;
+        return `
+          <div class="request-row" onclick="Router.navigate('lifecycle')">
+            <div class="emp-avatar large">${r.employeeName.split(' ').map(n => n[0]).join('')}</div>
+            <div class="rr-main">
+              <div class="rr-name">${r.employeeName}</div>
+              <div class="rr-meta">${r.id} · ${r.department} · ${r.manager}</div>
+            </div>
+            <div class="rr-progress">
+              <div class="rr-progress-label">${r.completionPercent}% Complete</div>
+              <div class="rr-progress-bar">
+                <div class="rr-progress-fill" style="width:${r.completionPercent}%;background:${r.completionPercent === 100 ? '#10B981' : '#7C3AED'}"></div>
+              </div>
+            </div>
+            <span class="type-badge type-${r.type}">${r.type === 'onboarding' ? '🟢 Onboarding' : '🔴 Offboarding'}</span>
+            <span class="sla-badge ${r.slaStatus === 'on_track' ? 'sla-good' : r.slaStatus === 'at_risk' ? 'sla-risk' : 'sla-breach'}">${r.slaStatus.replace('_', ' ')}</span>
+            <div style="font-size:13px;color:var(--text-muted);min-width:90px">${date || '—'}</div>
+          </div>`;
+      }).join('')}
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="glass-card" style="margin-top:8px">
+      <div class="chart-title" style="margin-bottom:16px">⚡ Quick Actions</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="Router.navigate('portal')">📝 Submit Request</button>
+        ${currentUser.role !== 'employee' ? `
+        <button class="btn-secondary" onclick="Router.navigate('lifecycle')">📋 View All Records</button>
+        <button class="btn-secondary" onclick="Router.navigate('approvals')">✅ Review Approvals</button>
+        <button class="btn-secondary" onclick="Router.navigate('tasks')">📌 Manage Tasks</button>
+        <button class="btn-secondary" onclick="Router.navigate('analytics')">📈 View Reports</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+    }
+
+    // ── Service Portal View ──────────────────────────────
+    function renderPortal(container) {
+      let activeForm = null;
+
+      function showCatalog() {
+        container.innerHTML = `
+      <div class="portal-hero">
+        <h1>HR Services Catalog</h1>
+        <p>ServiceNow Service Portal · Self-Service Employee Lifecycle Management</p>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px">
+          <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);padding:4px 14px;border-radius:100px;font-size:12px;color:#10B981">🔴 Live System</div>
+          <div style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);padding:4px 14px;border-radius:100px;font-size:12px;color:#06B6D4">ServiceNow PDI</div>
+        </div>
+      </div>
+
+      <div class="catalog-grid">
+        <div class="catalog-item" style="--gradient:linear-gradient(135deg,rgba(16,185,129,0.08),transparent)"
+          onclick="showForm('onboarding')">
+          <div class="catalog-icon">🟢</div>
+          <div class="catalog-title">Onboard Employee</div>
+          <div class="catalog-desc">Submit a new employee onboarding request. Triggers manager approval and auto-assigns tasks to HR, IT, Facilities, and Security.</div>
+          <div class="catalog-badge" style="background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3)">
+            ➕ Start Onboarding
+          </div>
+        </div>
+
+        <div class="catalog-item" style="--gradient:linear-gradient(135deg,rgba(244,63,94,0.08),transparent)"
+          onclick="showForm('offboarding')">
+          <div class="catalog-icon">🔴</div>
+          <div class="catalog-title">Offboard Employee</div>
+          <div class="catalog-desc">Initiate employee exit process. Routes to manager approval, triggers access revocation, device recovery, and badge deactivation.</div>
+          <div class="catalog-badge" style="background:rgba(244,63,94,0.15);color:#F43F5E;border:1px solid rgba(244,63,94,0.3)">
+            ➖ Start Offboarding
+          </div>
+        </div>
+        
+
+        <div class="catalog-item" style="--gradient:linear-gradient(135deg,rgba(124,58,237,0.08),transparent);cursor:default;opacity:0.6">
+          <div class="catalog-icon">📤</div>
+          <div class="catalog-title">Transfer Request</div>
+          <div class="catalog-desc">Initiate an internal department or location transfer. <span style="color:#7C3AED">Coming Soon</span></div>
+          <div class="catalog-badge" style="background:rgba(124,58,237,0.1);color:#9D5DF0;border:1px solid rgba(124,58,237,0.2)">🔜 Upcoming</div>
+        </div>
+
+        <div class="catalog-item" style="--gradient:linear-gradient(135deg,rgba(245,158,11,0.08),transparent);cursor:default;opacity:0.6">
+          <div class="catalog-icon">📅</div>
+          <div class="catalog-title">Leave Request</div>
+          <div class="catalog-desc">Manage extended leaves and return-to-work planning. <span style="color:#F59E0B">Coming Soon</span></div>
+          <div class="catalog-badge" style="background:rgba(245,158,11,0.1);color:#F59E0B;border:1px solid rgba(245,158,11,0.2)">🔜 Upcoming</div>
+        </div>
+      </div>
+    `;
+        window.showForm = showForm;
+      }
+
+      function showForm(type) {
+        activeForm = type;
+        const isOnboarding = type === 'onboarding';
+        container.innerHTML = `
+      <div style="margin-bottom:20px">
+        <button class="btn-secondary" onclick="renderPortal(container)">← Back to Catalog</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-card">
+          <div class="form-header">
+            <div class="form-icon">${isOnboarding ? '🟢' : '🔴'}</div>
+            <div>
+              <div class="form-title">${isOnboarding ? 'Employee Onboarding Request' : 'Employee Offboarding Request'}</div>
+              <div class="form-sub">${isOnboarding ? 'New hire setup — HR Services Catalog' : 'Employee exit process — HR Services Catalog'}</div>
+            </div>
+          </div>
+
+          <form id="lifecycle-form" onsubmit="submitForm(event, '${type}')">
+            <div class="form-grid">
+
+              <div class="form-section-title">
+                🧑 Employee Information
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Employee ID <span class="req">*</span></label>
+                <input id="f-empid" type="text" class="form-input" placeholder="EMP-2024-XXX" required
+                  pattern="EMP-\\d{4}-\\d{3}" title="Format: EMP-YYYY-NNN"/>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Full Name <span class="req">*</span></label>
+                <input id="f-empname" type="text" class="form-input" placeholder="First Last" required/>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Email Address <span class="req">*</span></label>
+                <input id="f-email" type="email" class="form-input" placeholder="employee@company.com" required/>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Department <span class="req">*</span></label>
+                <select id="f-dept" class="form-select" required>
+                  <option value="">Select Department</option>
+                  ${window.APP_DATA.DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Reporting Manager <span class="req">*</span></label>
+                <select id="f-manager" class="form-select" required>
+                  <option value="">Select Manager</option>
+                  <option>Sarah Mitchell</option>
+                  <option>Lisa Chen</option>
+                  <option>James Patel</option>
+                  <option>Robert Torres</option>
+                  <option>Angela Brown</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">${isOnboarding ? 'Joining Date' : 'Last Working Day'} <span class="req">*</span></label>
+                <input id="f-date" type="date" class="form-input" required
+                  min="${new Date().toISOString().split('T')[0]}"/>
+              </div>
+
+              <div class="form-section-title" style="margin-top:8px">
+                💼 ${isOnboarding ? 'Assets to Provision' : 'Assets to Recover'}
+              </div>
+
+              <div class="form-group full">
+                <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  ${window.APP_DATA.ASSETS.map(a => `
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="assets" value="${a}"/>
+                    <label>${a}</label>
+                  </label>`).join('')}
+                </div>
+              </div>
+
+              <div class="form-section-title" style="margin-top:8px">
+                🔐 System Access
+              </div>
+
+              <div class="form-group full">
+                <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  ${window.APP_DATA.ACCESS_SYSTEMS.map(s => `
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="access" value="${s}"/>
+                    <label>${s}</label>
+                  </label>`).join('')}
+                </div>
+              </div>
+
+              <div class="form-section-title" style="margin-top:8px">📝 Additional Notes</div>
+
+              <div class="form-group full">
+                <label class="form-label">Comments / Special Instructions</label>
+                <textarea id="f-comments" class="form-textarea" placeholder="Any special requirements, equipment preferences, or notes for the team..."></textarea>
+              </div>
+
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" onclick="renderPortal(container)">Cancel</button>
+              <button type="submit" class="btn-primary">
+                ${isOnboarding ? '🟢 Submit Onboarding Request' : '🔴 Submit Offboarding Request'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+
+        window.submitForm = (e, type) => {
+          e.preventDefault();
+          const empId = document.getElementById('f-empid').value;
+          const empName = document.getElementById('f-empname').value;
+          const dept = document.getElementById('f-dept').value;
+          const manager = document.getElementById('f-manager').value;
+          const date = document.getElementById('f-date').value;
+          const comments = document.getElementById('f-comments').value;
+
+          const checkedAssets = [...document.querySelectorAll('input[name="assets"]:checked')].map(c => c.value);
+          const checkedAccess = [...document.querySelectorAll('input[name="access"]:checked')].map(c => c.value);
+
+          const newId = 'REQ' + String(Date.now()).slice(-7);
+          const newReq = {
+            id: newId,
+            type: type,
+            employeeId: empId,
+            employeeName: empName,
+            department: dept,
+            manager: manager,
+            status: 'pending_approval',
+            approvalStatus: 'pending',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            assets: checkedAssets,
+            accessSystems: checkedAccess,
+            slaStatus: 'on_track',
+            completionPercent: 0,
+            comments: comments,
+            tasks: [],
+          };
+          if (type === 'onboarding') newReq.joiningDate = date;
+          else newReq.exitDate = date;
+
+          window.APP_DATA.requests.unshift(newReq);
+          window.APP_DATA.notifications.unshift({
+            id: 'N' + Date.now(),
+            type: 'approval',
+            message: `${newId} submitted — pending manager approval`,
+            time: 'Just now',
+            read: false,
+            requestId: newId
+          });
+          updateNotifBadge();
+
+          // Show success screen
+          container.innerHTML = `
+        <div style="max-width:500px;margin:60px auto">
+          <div class="form-card submit-success">
+            <div class="success-icon">${type === 'onboarding' ? '🎉' : '📤'}</div>
+            <div class="success-title">Request Submitted Successfully!</div>
+            <div class="success-sub">Your ${type} request has been logged. The manager will receive an approval notification shortly.</div>
+            <div class="success-req">${newId}</div>
+            <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <button class="btn-primary" onclick="Router.navigate('lifecycle')">📋 View All Requests</button>
+              <button class="btn-secondary" onclick="renderPortal(container)">← Back to Catalog</button>
+            </div>
+          </div>
+        </div>
+      `;
+          NotificationSystem.show(`Request ${newId} submitted! Pending manager approval.`, 'approval');
+        };
+      }
+
+      showCatalog();
+    }
+
+    // ── Setup Guide View ─────────────────────────────────
+    function renderSetupGuide(container) {
+      const steps = [
+        {
+          phase: 'Phase 1', title: 'Catalog Item Creation',
+          icon: '📁', color: '#7C3AED',
+          steps: [
+            'Navigate to Service Catalog → Maintain Items → New',
+            'Create "Onboard Employee" with category HR Services',
+            'Create "Offboard Employee" with category HR Services',
+            'Set short description, icon, and fulfillment group',
+            'Add catalog variable set: Employee ID, Name, Department, Manager, Date, Assets, Access',
+          ]
+        },
+        {
+          phase: 'Phase 2', title: 'Custom Table: u_employee_lifecycle',
+          icon: '🗄️', color: '#06B6D4',
+          steps: [
+            'Go to System Definition → Tables → New',
+            'Create table u_employee_lifecycle extending Task [task]',
+            'Add fields: Employee ID, Request Type, Department, Manager, Joining/Exit Date, Status, SLA Status',
+            'Set 4 default ACLs auto-created with table',
+            'Enable audit history for all sensitive fields',
+          ]
+        },
+        {
+          phase: 'Phase 3', title: 'Flow Designer Automation',
+          icon: '⚡', color: '#10B981',
+          steps: [
+            'Open Flow Designer → New Flow → Trigger: Service Catalog',
+            'Select catalog item: Onboard/Offboard Employee',
+            'Action: Get Catalog Variables → map to u_employee_lifecycle fields',
+            'Action: Ask for Approval → Reporting Manager',
+            'If Approved: Create Task records for IT, HR, Facilities, Security',
+            'Action: Send Email Notification at each milestone',
+            'Action: Update lifecycle record status on completion',
+          ]
+        },
+        {
+          phase: 'Phase 4', title: 'Role & ACL Configuration',
+          icon: '🔒', color: '#F59E0B',
+          steps: [
+            'Create roles: x_company_lifecycle.hr_admin, .manager, .it_team, .facilities, .security',
+            'Navigate to Security → Access Control → New',
+            'HR: Read/Write on all lifecycle records',
+            'Manager: Read own reports + Write approval field only',
+            'IT/Facilities/Security: Read request + Write own task records',
+            'Test ACLs by impersonating each role',
+          ]
+        },
+        {
+          phase: 'Phase 5', title: 'SLA Configuration',
+          icon: '⏱️', color: '#F43F5E',
+          steps: [
+            'Navigate to SLA → SLA Definitions → New',
+            'Create SLA for IT Tasks: 48-hour resolution target',
+            'Create SLA for Facilities: 72-hour target',
+            'Create SLA for Security: 24-hour target (access revocation)',
+            'Set pause conditions (e.g., awaiting approval)',
+            'Configure breach notifications to managers',
+          ]
+        },
+        {
+          phase: 'Phase 6', title: 'Testing & Deployment',
+          icon: '🧪', color: '#8B5CF6',
+          steps: [
+            'Impersonate an employee → Submit onboarding via SP (/sp)',
+            'Impersonate manager → Verify approval notification received',
+            'Approve request → Verify tasks created in all departments',
+            'Impersonate IT/Facilities/Security → Complete tasks',
+            'Verify SLA tracking, email logs, and closure automation',
+            'Export update set and deploy to production',
+          ]
+        },
+      ];
+
+      container.innerHTML = `
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Setup Manual</h1>
+        <p class="view-subtitle">Step-by-step guide to replicate this solution in a new ServiceNow PDI</p>
+      </div>
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:8px 16px;border-radius:8px;font-size:13px;color:#10B981">
+        📚 6 Phases · 30+ Steps
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      ${steps.map((phase, pi) => `
+      <div class="glass-card" style="border-left:4px solid ${phase.color}">
+        <div style="display:flex;align-items:center;gap:12px;cursor:pointer"
+          onclick="togglePhase('phase-${pi}')">
+          <div style="font-size:24px">${phase.icon}</div>
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">${phase.phase}</div>
+            <div style="font-size:17px;font-weight:600">${phase.title}</div>
+          </div>
+          <div id="phase-arrow-${pi}" style="color:var(--text-muted);font-size:18px;transition:transform 0.2s">▼</div>
+        </div>
+        <div id="phase-${pi}" style="overflow:hidden;max-height:0;transition:max-height 0.4s ease">
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <ol style="display:flex;flex-direction:column;gap:10px;padding-left:20px">
+              ${phase.steps.map((s, si) => `
+              <li style="font-size:14px;color:var(--text-secondary);line-height:1.6">
+                <span style="color:${phase.color}">${s}</span>
+              </li>`).join('')}
+            </ol>
+            <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:13px;color:var(--text-muted)">
+              💡 Tip: Use the ServiceNow instance at https://dev{ID}.service-now.com. Add /sp for the Service Portal.
+            </div>
+          </div>
+        </div>
+      </div>
+      `).join('')}
+    </div>
+
+    <div class="glass-card" style="margin-top:24px;padding:28px">
+      <div class="chart-title">🔗 Navigation Flow (ServiceNow SP)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px">
+        ${['Login to PDI', 'Go to /sp', 'Search HR Services', 'Select Onboard/Offboard', 'Fill Form', 'Submit Request', 'Manager Approves', 'Tasks Auto-Created', 'Departments Complete Tasks', 'Request Closed'].map((step, i) => `
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#A78BFA;white-space:nowrap">
+              <span style="color:var(--text-muted);font-size:11px">${i + 1}.</span> ${step}
+            </div>
+            ${i < 9 ? '<span style="color:var(--text-muted)">→</span>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+      window.togglePhase = (id) => {
+        const el = document.getElementById(id);
+        const idx = id.split('-')[1];
+        const arrow = document.getElementById(`phase-arrow-${idx}`);
+        const isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
+        el.style.maxHeight = isOpen ? '0px' : '600px';
+        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+      };
+    }
+
+    // ── Notifications ────────────────────────────────────
+    function updateNotifBadge() {
+      const unread = window.APP_DATA.notifications.filter(n => !n.read).length;
+      const badge = document.getElementById('notif-badge');
+      if (badge) {
+        badge.textContent = unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+      }
+    }
+
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notif-dropdown');
+      if (dropdown.style.display === 'none' || !dropdown.style.display) {
+        dropdown.style.display = 'block';
+        renderNotifDropdown();
+        // Mark as read
+        window.APP_DATA.notifications.forEach(n => n.read = true);
+        setTimeout(() => updateNotifBadge(), 1000);
+      } else {
+        dropdown.style.display = 'none';
+      }
+    }
+
+    function renderNotifDropdown() {
+      const dropdown = document.getElementById('notif-dropdown');
+      const notifs = window.APP_DATA.notifications;
+      dropdown.innerHTML = `
+    <div class="notif-header">
+      <span>Notifications</span>
+      <span style="font-size:12px;color:var(--text-muted)">${notifs.filter(n => !n.read).length} unread</span>
+    </div>
+    ${notifs.slice(0, 6).map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="window.Router.navigate('${getNotifTarget(n.type)}');document.getElementById('notif-dropdown').style.display='none'">
+      ${!n.read ? '<div class="notif-dot"></div>' : '<div style="width:8px;min-width:8px"></div>'}
+      <div>
+        <div class="notif-text">${n.message}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('')}
+  `;
+    }
+
+    function getNotifTarget(type) {
+      if (type === 'approval') return 'approvals';
+      if (type === 'task') return 'tasks';
+      return 'lifecycle';
+    }
+
+    // ── Init ─────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      NotificationSystem.init();
+    });
+  </script>
+</body>
+
+</html>
